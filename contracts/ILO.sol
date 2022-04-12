@@ -9,6 +9,12 @@ contract ILO {
 
     bool public iloFulfilled = false;
 
+    bool public iloSucces;
+
+    uint256 public tokensSold;
+
+    uint256 public fundsRaised;
+
     uint256 internal immutable totalSaleSupply;
 
     uint256 internal constant minBougth = 50;
@@ -57,6 +63,8 @@ contract ILO {
         require(msg.value > 0, "You have sent no value.");
         valuePaid[msg.sender] += msg.value;
         tokenBougth[msg.sender] += msg.value / pricePerTokenPresale;
+        tokensSold += msg.value / pricePerTokenPresale;
+        fundsRaised += msg.value;
         emit TokenBougth(msg.sender, msg.value / pricePerTokenPresale);
     }
 
@@ -68,12 +76,17 @@ contract ILO {
         require(msg.value > 0, "You have sent no value.");
         valuePaid[msg.sender] += msg.value;
         tokenBougth[msg.sender] += msg.value / pricePerToken;
+        tokensSold += msg.value / pricePerToken;
+        fundsRaised += msg.value;
         emit TokenBougth(msg.sender, msg.value / pricePerToken);
     }
 
     function fulfillILO() public {
+        require(block.timestamp > mainSaleEnd, "Sale still active");
         require(!iloFulfilled, "ILO already Fulfilled");
-        depositLiquidity();
+        if ((tokensSold * 50) / 100 > totalSaleSupply) {
+            depositLiquidity();
+        }
         iloFulfilled = true;
     }
 
