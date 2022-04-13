@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "../interfaces/Uniswap.sol";
 
-// To fix math for price calculus
-
 contract ILO is Ownable {
     address internal immutable token;
 
@@ -40,6 +38,9 @@ contract ILO is Ownable {
 
     uint256 internal immutable mainSaleEnd;
 
+    uint256 internal constant PRICE_DECIMALS = 10**10;
+
+    // Expressed with 10 decimals: 1*(10**10) = 1
     uint256 public immutable pricePerToken;
 
     uint256 public immutable pricePerTokenPresale;
@@ -122,10 +123,15 @@ contract ILO is Ownable {
         );
         IERC20(paymentToken).transferFrom(msg.sender, address(this), _amount);
         tokenPaid[msg.sender] += _amount;
-        tokenBougth[msg.sender] += _amount / pricePerTokenPresale;
-        tokensSold += _amount / pricePerTokenPresale;
+        tokenBougth[msg.sender] +=
+            (_amount * PRICE_DECIMALS) /
+            pricePerTokenPresale;
+        tokensSold += (_amount * PRICE_DECIMALS) / pricePerTokenPresale;
         fundsRaised += _amount;
-        emit TokenBougth(msg.sender, _amount / pricePerTokenPresale);
+        emit TokenBougth(
+            msg.sender,
+            (_amount * PRICE_DECIMALS) / pricePerTokenPresale
+        );
     }
 
     function mainBuy(uint256 _amount) public payable {
@@ -140,9 +146,12 @@ contract ILO is Ownable {
         IERC20(paymentToken).transferFrom(msg.sender, address(this), _amount);
         tokenPaid[msg.sender] += _amount;
         tokenBougth[msg.sender] += _amount / pricePerToken;
-        tokensSold += _amount / pricePerToken;
+        tokensSold += (_amount * PRICE_DECIMALS) / pricePerToken;
         fundsRaised += _amount;
-        emit TokenBougth(msg.sender, _amount / pricePerToken);
+        emit TokenBougth(
+            msg.sender,
+            (_amount * PRICE_DECIMALS) / pricePerToken
+        );
     }
 
     function fulfillILO() public {
@@ -152,7 +161,8 @@ contract ILO is Ownable {
             iloSuccess = true;
             uint256 paymentTokenForPool = (fundsRaised *
                 salesPercentageForLiquidity) / 100;
-            uint256 tokenForPool = paymentTokenForPool * pricePerToken;
+            uint256 tokenForPool = (paymentTokenForPool * pricePerToken) /
+                PRICE_DECIMALS;
             depositLiquidity(tokenForPool, paymentTokenForPool);
         } else {
             iloSuccess = false;
