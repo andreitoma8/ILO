@@ -250,16 +250,6 @@ contract ILO is Ownable {
                 owner(),
                 block.timestamp + 86400
             );
-        // uint256 amountToWithdrawA = IERC20(paymentToken).balanceOf(
-        //     address(this)
-        // );
-        // IERC20(paymentToken).transferFrom(
-        //     address(this),
-        //     owner(),
-        //     amountToWithdrawA
-        // );
-        // uint256 amountToWithdrawB = IERC20(token).balanceOf(address(this));
-        // IERC20(token).transferFrom(address(this), owner(), amountToWithdrawB);
         emit LiquidityRemoved(amountA, amountB);
     }
 }
