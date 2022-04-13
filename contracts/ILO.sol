@@ -252,4 +252,26 @@ contract ILO is Ownable {
             );
         emit LiquidityRemoved(amountA, amountB);
     }
+
+    function iloDetails()
+        public
+        view
+        returns (
+            uint256 _whitelistSaleStart,
+            uint256 _mainSaleStart,
+            uint256 _mainSaleEnd,
+            uint256 _tokensSold,
+            bool _iloFulfilled,
+            bool _iloSuccess
+        )
+    {
+        return (
+            whitelistSaleStart,
+            mainSaleStart,
+            mainSaleEnd,
+            tokensSold,
+            iloFulfilled,
+            iloSuccess
+        );
+    }
 }
